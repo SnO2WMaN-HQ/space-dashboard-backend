@@ -1,0 +1,4 @@
+{
+  "root": true,
+  "extends": ["@bo2kshelf/eslint-config/nest"]
+}

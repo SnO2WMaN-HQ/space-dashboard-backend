@@ -1,0 +1,30 @@
+services:
+  adminer:
+    image: adminer:standalone@sha256:370c04eb26f585c408986d89d1d9c5e62f387d4afdd5a49aa13f7c5f53790262
+    ports:
+      - published: 18080
+        target: 8080
+    networks:
+      - dashboard
+    environment:
+      ADMINER_DESIGN: pepa-linha
+
+  dashboard-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: $DASHBOARD_DB_USERNAME
+      POSTGRES_PASSWORD: $DASHBOARD_DB_PASSWORD
+      POSTGRES_DB: $DASHBOARD_DB_DATABASE
+    ports:
+      - published: $DASHBOARD_DB_PORT
+        target: 5432
+    networks:
+      - dashboard
+    volumes:
+      - dashboard-db-data:/var/lib/postgresql/data
+
+volumes:
+  dashboard-db-data:
+
+networks:
+  dashboard:

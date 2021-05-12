@@ -1,0 +1,9 @@
+# test
+coverage/
+
+# output
+dist/
+
+# package-lock.json
+package-lock.json
+

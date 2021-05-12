@@ -1,0 +1,32 @@
+datasource db {
+  provider = "postgres"
+  url      = env("DASHBOARD_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Space {
+  id String @id @default(uuid())
+
+  finished Boolean @default(false)
+
+  title       String
+  description String?
+  minutesUrl  String?
+
+  openDate DateTime  @db.Date
+  openTime DateTime? @db.Time
+
+  hostUser          User   @relation("UserSpaceHostRelation", fields: [hostUserTwitterId], references: [twitterId])
+  hostUserTwitterId String
+
+  followingUsers User[] @relation("UserSpaceFollowingRelation")
+}
+
+model User {
+  twitterId       String  @id
+  hostedSpaces    Space[] @relation("UserSpaceHostRelation")
+  followingSpaces Space[] @relation("UserSpaceFollowingRelation")
+}

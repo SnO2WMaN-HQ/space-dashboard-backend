@@ -53,4 +53,57 @@ export class UsersService {
       spaceId,
     }));
   }
+
+  async spaceFollowing(
+    twitterId: string,
+    spaceId: string,
+  ): Promise<boolean | null> {
+    return this.prismaService.space
+      .findUnique({
+        where: {id: spaceId},
+        select: {followingUsers: {select: {twitterId: true}}},
+      })
+      .then(
+        (space) =>
+          space &&
+          space.followingUsers
+            .map((user) => user.twitterId)
+            .includes(twitterId),
+      );
+  }
+
+  async ensureUser({
+    twitterId,
+    uniqueName,
+    displayName,
+    picture,
+  }: {
+    twitterId: string;
+    uniqueName: string;
+    displayName: string;
+    picture: string;
+  }): Promise<UserEntity> {
+    return this.prismaService.user.upsert({
+      where: {twitterId},
+      create: {
+        twitterId,
+        uniqueName,
+        displayName,
+        picture,
+      },
+      update: {
+        uniqueName,
+        displayName,
+        picture,
+      },
+      select: {
+        twitterId: true,
+        uniqueName: true,
+        displayName: true,
+        picture: true,
+        hostedSpaces: {select: {id: true}},
+        followingSpaces: {select: {id: true}},
+      },
+    });
+  }
 }

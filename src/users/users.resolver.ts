@@ -20,6 +20,16 @@ export class UsersResolver {
     return this.usersService.resolveFollowingSpaces(user);
   }
 
+  @ResolveField(() => Boolean)
+  async spaceFollowing(
+    @Parent() {twitterId}: UserEntity,
+    @Args('spaceId', {type: () => String}) spaceId: string,
+  ): Promise<boolean> {
+    const result = await this.usersService.spaceFollowing(twitterId, spaceId);
+    if (result === null) throw new NotFoundException();
+    return result;
+  }
+
   @Query(() => UserEntity, {name: 'user'})
   async findUser(@Args() args: FindUserArgs) {
     const result = await this.usersService.findOne(args);

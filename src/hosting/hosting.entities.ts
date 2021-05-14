@@ -4,7 +4,7 @@ import {PageInfoEntity} from '../paginate/page-info.entity';
 @ObjectType('Hosting')
 export class HostingEntity {
   spaceId!: string;
-  userTwitterId!: string;
+  userId!: string;
 }
 
 @ObjectType('HostingEdge')

@@ -19,7 +19,7 @@ export class SpacesService {
         description: true,
         minutesUrl: true,
         openDate: true,
-        hostUserTwitterId: true,
+        hostUserId: true,
         followingUsers: {select: {id: true}},
       },
     });
@@ -34,14 +34,14 @@ export class SpacesService {
         description: true,
         minutesUrl: true,
         openDate: true,
-        hostUserTwitterId: true,
+        hostUserId: true,
         followingUsers: {select: {id: true}},
       },
     });
   }
 
-  resolveHostUser({id, hostUserTwitterId}: SpaceEntity): HostingEntity {
-    return {userTwitterId: hostUserTwitterId, spaceId: id};
+  resolveHostUser({id, hostUserId}: SpaceEntity): HostingEntity {
+    return {userId: hostUserId, spaceId: id};
   }
 
   async resolveFollowingUsers(
@@ -55,19 +55,19 @@ export class SpacesService {
           cursor: {id: params.cursor},
           skip: 1,
           take: params.take,
-          select: {id: true, userTwitterId: true, spaceId: true},
+          select: {id: true, userId: true, spaceId: true},
           orderBy,
         })
       : this.prismaService.following.findMany({
           where: {spaceId},
           take: params.take,
-          select: {id: true, userTwitterId: true, spaceId: true},
+          select: {id: true, userId: true, spaceId: true},
           orderBy,
         })
     ).then((followings) => ({
-      edges: followings.map(({id, spaceId, userTwitterId}) => ({
+      edges: followings.map(({id, spaceId, userId}) => ({
         cursor: id,
-        node: {id, spaceId, userTwitterId},
+        node: {id, spaceId, userId},
       })),
       pageInfo: {
         endCursor: followings[followings.length - 1]?.id,

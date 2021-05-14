@@ -2,6 +2,8 @@ import {Field, ID, ObjectType} from '@nestjs/graphql';
 
 @ObjectType('User')
 export class UserEntity {
+  id!: string;
+
   @Field(() => ID)
   twitterId!: string;
 

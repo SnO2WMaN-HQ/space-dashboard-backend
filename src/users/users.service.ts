@@ -10,11 +10,12 @@ export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
   async findOne(
-    where: {uniqueName: string} | {twitterId: string},
+    where: {id: string} | {uniqueName: string},
   ): Promise<UserEntity | null> {
     return this.prismaService.user.findUnique({
       where,
       select: {
+        id: true,
         twitterId: true,
         uniqueName: true,
         displayName: true,
@@ -26,6 +27,7 @@ export class UsersService {
   async all(): Promise<UserEntity[]> {
     return this.prismaService.user.findMany({
       select: {
+        id: true,
         twitterId: true,
         uniqueName: true,
         displayName: true,
@@ -35,7 +37,7 @@ export class UsersService {
   }
 
   async getHostedSpaces(
-    userTwitterId: string,
+    userId: string,
     params: {take: number} | {cursor: string; take: number},
     conditions: {finished: boolean},
     orderBy: {openDate: Prisma.SortOrder},
@@ -43,28 +45,28 @@ export class UsersService {
     return ('cursor' in params
       ? this.prismaService.space.findMany({
           where: {
-            hostUserTwitterId: userTwitterId,
+            hostUserId: userId,
             finished: conditions.finished,
           },
           cursor: {id: params.cursor},
           skip: 1,
           take: params.take,
-          select: {id: true, hostUserTwitterId: true},
+          select: {id: true, hostUserId: true},
           orderBy: {openDate: orderBy.openDate},
         })
       : this.prismaService.space.findMany({
           where: {
-            hostUserTwitterId: userTwitterId,
+            hostUserId: userId,
             finished: conditions.finished,
           },
           take: params.take,
-          select: {id: true, hostUserTwitterId: true},
+          select: {id: true, hostUserId: true},
           orderBy: {openDate: orderBy.openDate},
         })
     ).then((followings) => ({
-      edges: followings.map(({id, hostUserTwitterId}) => ({
+      edges: followings.map(({id, hostUserId}) => ({
         cursor: id,
-        node: {spaceId: id, userTwitterId: hostUserTwitterId},
+        node: {spaceId: id, userId: hostUserId},
       })),
       pageInfo: {
         endCursor: followings[followings.length - 1]?.id,
@@ -74,30 +76,36 @@ export class UsersService {
   }
 
   async getFollowingSpaces(
-    userTwitterId: string,
+    userId: string,
     params: {take: number} | {cursor: string; take: number},
     conditions: {finished: boolean},
     orderBy: {updatedAt: Prisma.SortOrder},
   ): Promise<FollowingConnectionEntity | null> {
     return ('cursor' in params
       ? this.prismaService.following.findMany({
-          where: {userTwitterId, space: {finished: conditions.finished}},
+          where: {
+            userId,
+            space: {finished: conditions.finished},
+          },
           cursor: {id: params.cursor},
           skip: 1,
           take: params.take,
-          select: {id: true, spaceId: true, userTwitterId: true},
+          select: {id: true, spaceId: true, userId: true},
           orderBy: {updatedAt: orderBy.updatedAt},
         })
       : this.prismaService.following.findMany({
-          where: {userTwitterId, space: {finished: conditions.finished}},
+          where: {
+            userId,
+            space: {finished: conditions.finished},
+          },
           take: params.take,
-          select: {id: true, spaceId: true, userTwitterId: true},
+          select: {id: true, spaceId: true, userId: true},
           orderBy: {updatedAt: orderBy.updatedAt},
         })
     ).then((followings) => ({
-      edges: followings.map(({id, spaceId, userTwitterId}) => ({
+      edges: followings.map(({id, spaceId, userId}) => ({
         cursor: id,
-        node: {id, spaceId, userTwitterId},
+        node: {id, spaceId, userId},
       })),
       pageInfo: {
         endCursor: followings[followings.length - 1]?.id,
@@ -106,15 +114,12 @@ export class UsersService {
     }));
   }
 
-  async isSpaceFollowing(
-    userTwitterId: string,
-    spaceId: string,
-  ): Promise<boolean> {
+  async isSpaceFollowing(userId: string, spaceId: string): Promise<boolean> {
     return this.prismaService.following
       .findUnique({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
-          spaceId_userTwitterId: {spaceId, userTwitterId},
+          spaceId_userId: {spaceId, userId},
         },
       })
       .then((following) => Boolean(following));
@@ -145,6 +150,7 @@ export class UsersService {
         picture,
       },
       select: {
+        id: true,
         twitterId: true,
         uniqueName: true,
         displayName: true,

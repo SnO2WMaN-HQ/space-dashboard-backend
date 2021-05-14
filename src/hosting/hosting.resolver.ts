@@ -18,8 +18,8 @@ export class HostingResolver {
   }
 
   @ResolveField(() => UserEntity)
-  user(@Parent() {userTwitterId: twitterId}: HostingEntity) {
-    return this.usersService.findOne({twitterId});
+  user(@Parent() {userId}: HostingEntity) {
+    return this.usersService.findOne({id: userId});
   }
 }
 

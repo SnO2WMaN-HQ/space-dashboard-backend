@@ -5,7 +5,7 @@ import {PageInfoEntity} from '../paginate/page-info.entity';
 export class FollowingEntity {
   id!: string;
   spaceId!: string;
-  userTwitterId!: string;
+  userId!: string;
 }
 
 @ObjectType('FollowingEdge')

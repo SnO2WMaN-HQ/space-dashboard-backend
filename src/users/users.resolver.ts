@@ -34,12 +34,12 @@ export class UsersResolver {
   @ResolveField(() => HostingConnectionEntity)
   async hostedSpaces(
     @Parent()
-    {twitterId}: UserEntity,
+    {id}: UserEntity,
     @Args({type: () => ResolveHostedSpacesArgs})
     {finished, orderBy, ...params}: ResolveHostedSpacesArgs,
   ): Promise<HostingConnectionEntity> {
     const result = await this.usersService.getHostedSpaces(
-      twitterId,
+      id,
       params.after
         ? {take: params.first, cursor: params.after}
         : {take: params.first},
@@ -53,12 +53,12 @@ export class UsersResolver {
   @ResolveField(() => FollowingConnectionEntity)
   async followingSpaces(
     @Parent()
-    {twitterId}: UserEntity,
+    {id}: UserEntity,
     @Args({type: () => ResolveFollowingSpacesArgs})
     {finished, orderBy, ...params}: ResolveFollowingSpacesArgs,
   ): Promise<FollowingConnectionEntity> {
     const result = await this.usersService.getFollowingSpaces(
-      twitterId,
+      id,
       params.after
         ? {take: params.first, cursor: params.after}
         : {take: params.first},
@@ -71,10 +71,10 @@ export class UsersResolver {
 
   @ResolveField(() => Boolean)
   async spaceFollowing(
-    @Parent() {twitterId}: UserEntity,
+    @Parent() {id}: UserEntity,
     @Args('spaceId', {type: () => String}) spaceId: string,
   ): Promise<boolean> {
-    return this.usersService.isSpaceFollowing(twitterId, spaceId);
+    return this.usersService.isSpaceFollowing(id, spaceId);
   }
 
   @Query(() => UserEntity, {name: 'user'})
@@ -87,5 +87,21 @@ export class UsersResolver {
   @Query(() => [UserEntity])
   async allUsers(): Promise<UserEntity[]> {
     return this.usersService.all();
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => UserEntity)
+  async currentUser(
+    @CurrentUser()
+    {id}: CurrentUserPayload,
+  ) {
+    return this.usersService.findOne({id});
+  }
+
+  @Mutation(() => UserEntity)
+  async ensureUser(
+    @Args({type: () => EnsureUserArgs}) {data}: EnsureUserArgs,
+  ): Promise<UserEntity> {
+    return this.usersService.ensureUser(data);
   }
 }

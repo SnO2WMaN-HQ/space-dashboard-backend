@@ -17,13 +17,14 @@ export class SpacesService {
         title: true,
         description: true,
         minutesUrl: true,
+        openDate: true,
         hostUserTwitterId: true,
         followingUsers: {select: {twitterId: true}},
       },
     });
   }
 
-  async all() {
+  async all(): Promise<SpaceEntity[]> {
     return this.prismaService.space.findMany({
       select: {
         id: true,
@@ -31,6 +32,7 @@ export class SpacesService {
         title: true,
         description: true,
         minutesUrl: true,
+        openDate: true,
         hostUserTwitterId: true,
         followingUsers: {
           select: {twitterId: true},
@@ -48,5 +50,13 @@ export class SpacesService {
       spaceId: id,
       userTwitterId: twitterId,
     }));
+  }
+
+  formatLocalDate(date: Date) {
+    return [
+      `${date.getFullYear()}`.padStart(4, '0'),
+      `${date.getUTCMonth() + 1}`.padStart(2, '0'),
+      `${date.getDate()}`.padStart(2, '0'),
+    ].join('-');
   }
 }

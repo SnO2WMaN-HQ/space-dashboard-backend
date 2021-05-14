@@ -1,5 +1,6 @@
 import {NotFoundException} from '@nestjs/common';
 import {Args, Parent, Query, ResolveField, Resolver} from '@nestjs/graphql';
+import {LocalDateResolver} from 'graphql-scalars';
 import {FollowingEntity} from '../following/following.entity';
 import {HostingEntity} from '../hosting/hosting.entity';
 import {FindSpaceArgs} from './dto/find-space.dto';
@@ -18,6 +19,11 @@ export class SpacesResolver {
   @ResolveField(() => [FollowingEntity])
   followingUsers(@Parent() parent: SpaceEntity): FollowingEntity[] {
     return this.spacesService.resolveFollowingUsers(parent);
+  }
+
+  @ResolveField(() => LocalDateResolver)
+  openDate(@Parent() {openDate}: SpaceEntity): string {
+    return this.spacesService.formatLocalDate(openDate);
   }
 
   @Query(() => SpaceEntity, {name: 'space'})

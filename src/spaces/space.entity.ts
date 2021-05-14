@@ -17,6 +17,8 @@ export class SpaceEntity {
   @Field(() => String, {nullable: true})
   minutesUrl?: string | null;
 
+  openDate!: Date;
+
   hostUserTwitterId!: string;
   followingUsers!: {twitterId: string}[];
 }

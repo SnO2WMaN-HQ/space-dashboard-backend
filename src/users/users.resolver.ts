@@ -1,8 +1,21 @@
-import {NotFoundException} from '@nestjs/common';
-import {Args, Query, ResolveField, Resolver} from '@nestjs/graphql';
-import {FollowingEntity} from '../following/following.entity';
-import {HostingEntity} from '../hosting/hosting.entity';
+import {NotFoundException, UseGuards} from '@nestjs/common';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
+import {URL} from 'url';
+import {CurrentUser, CurrentUserPayload} from '../auth/current-user.decorator';
+import {GqlAuthGuard} from '../auth/gql-auth.guard';
+import {FollowingConnectionEntity} from '../following/following.entities';
+import {HostingConnectionEntity} from '../hosting/hosting.entities';
+import {EnsureUserArgs} from './dto/ensure-user.dto';
 import {FindUserArgs} from './dto/find-user.dto';
+import {ResolveFollowingSpacesArgs} from './dto/resolve-following-spaces.dto';
+import {ResolveHostedSpacesArgs} from './dto/resolve-hosted-spaces.dto';
 import {UserEntity} from './user.entity';
 import {UsersService} from './users.service';
 
@@ -18,30 +31,40 @@ export class UsersResolver {
     return new URL(uniqueName, 'https://twitter.com').toString();
   }
 
-  @ResolveField(() => [HostingEntity])
+  @ResolveField(() => HostingConnectionEntity)
   async hostedSpaces(
     @Parent()
     {twitterId}: UserEntity,
     @Args({type: () => ResolveHostedSpacesArgs})
-    {finished}: ResolveHostedSpacesArgs,
-  ): Promise<HostingEntity[]> {
-    const result = await this.usersService.resolveHostedSpaces(twitterId, {
-      finished,
-    });
+    {finished, orderBy, ...params}: ResolveHostedSpacesArgs,
+  ): Promise<HostingConnectionEntity> {
+    const result = await this.usersService.getHostedSpaces(
+      twitterId,
+      params.after
+        ? {take: params.first, cursor: params.after}
+        : {take: params.first},
+      {finished},
+      orderBy,
+    );
     if (!result) throw new NotFoundException();
     return result;
   }
 
-  @ResolveField(() => [FollowingEntity])
+  @ResolveField(() => FollowingConnectionEntity)
   async followingSpaces(
     @Parent()
     {twitterId}: UserEntity,
     @Args({type: () => ResolveFollowingSpacesArgs})
-    {finished}: ResolveFollowingSpacesArgs,
-  ): Promise<FollowingEntity[]> {
-    const result = await this.usersService.resolveFollowingSpaces(twitterId, {
-      finished,
-    });
+    {finished, orderBy, ...params}: ResolveFollowingSpacesArgs,
+  ): Promise<FollowingConnectionEntity> {
+    const result = await this.usersService.getFollowingSpaces(
+      twitterId,
+      params.after
+        ? {take: params.first, cursor: params.after}
+        : {take: params.first},
+      {finished},
+      orderBy,
+    );
     if (!result) throw new NotFoundException();
     return result;
   }
@@ -51,9 +74,7 @@ export class UsersResolver {
     @Parent() {twitterId}: UserEntity,
     @Args('spaceId', {type: () => String}) spaceId: string,
   ): Promise<boolean> {
-    const result = await this.usersService.spaceFollowing(twitterId, spaceId);
-    if (result === null) throw new NotFoundException();
-    return result;
+    return this.usersService.isSpaceFollowing(twitterId, spaceId);
   }
 
   @Query(() => UserEntity, {name: 'user'})

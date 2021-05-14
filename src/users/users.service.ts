@@ -1,6 +1,7 @@
+import {Prisma} from '.prisma/client';
 import {Injectable} from '@nestjs/common';
-import {FollowingEntity} from '../following/following.entity';
-import {HostingEntity} from '../hosting/hosting.entity';
+import {FollowingConnectionEntity} from '../following/following.entities';
+import {HostingConnectionEntity} from '../hosting/hosting.entities';
 import {PrismaService} from '../prisma/prisma.service';
 import {UserEntity} from './user.entity';
 
@@ -33,70 +34,90 @@ export class UsersService {
     });
   }
 
-  resolveHostedSpaces(
-    twitterId: string,
-    {finished}: {finished: boolean},
-  ): Promise<HostingEntity[] | null> {
-    return this.prismaService.user
-      .findUnique({
-        where: {twitterId},
-        select: {
-          followingSpaces: {
-            where: {finished},
-            select: {id: true},
+  async getHostedSpaces(
+    userTwitterId: string,
+    params: {take: number} | {cursor: string; take: number},
+    conditions: {finished: boolean},
+    orderBy: {openDate: Prisma.SortOrder},
+  ): Promise<HostingConnectionEntity | null> {
+    return ('cursor' in params
+      ? this.prismaService.space.findMany({
+          where: {
+            hostUserTwitterId: userTwitterId,
+            finished: conditions.finished,
           },
-        },
-      })
-      .then(
-        (user) =>
-          user &&
-          user.followingSpaces.map(({id}) => ({
-            spaceId: id,
-            userTwitterId: twitterId,
-          })),
-      );
+          cursor: {id: params.cursor},
+          skip: 1,
+          take: params.take,
+          select: {id: true, hostUserTwitterId: true},
+          orderBy: {openDate: orderBy.openDate},
+        })
+      : this.prismaService.space.findMany({
+          where: {
+            hostUserTwitterId: userTwitterId,
+            finished: conditions.finished,
+          },
+          take: params.take,
+          select: {id: true, hostUserTwitterId: true},
+          orderBy: {openDate: orderBy.openDate},
+        })
+    ).then((followings) => ({
+      edges: followings.map(({id, hostUserTwitterId}) => ({
+        cursor: id,
+        node: {spaceId: id, userTwitterId: hostUserTwitterId},
+      })),
+      pageInfo: {
+        endCursor: followings[followings.length - 1]?.id,
+        hasNextPage: followings.length === params.take,
+      },
+    }));
   }
 
-  async resolveFollowingSpaces(
-    twitterId: string,
-    {finished}: {finished: boolean},
-  ): Promise<FollowingEntity[] | null> {
-    return this.prismaService.user
-      .findUnique({
-        where: {twitterId},
-        select: {
-          followingSpaces: {
-            where: {finished},
-            select: {id: true},
-          },
-        },
-      })
-      .then(
-        (user) =>
-          user &&
-          user.followingSpaces.map(({id}) => ({
-            spaceId: id,
-            userTwitterId: twitterId,
-          })),
-      );
+  async getFollowingSpaces(
+    userTwitterId: string,
+    params: {take: number} | {cursor: string; take: number},
+    conditions: {finished: boolean},
+    orderBy: {updatedAt: Prisma.SortOrder},
+  ): Promise<FollowingConnectionEntity | null> {
+    return ('cursor' in params
+      ? this.prismaService.following.findMany({
+          where: {userTwitterId, space: {finished: conditions.finished}},
+          cursor: {id: params.cursor},
+          skip: 1,
+          take: params.take,
+          select: {id: true, spaceId: true, userTwitterId: true},
+          orderBy: {updatedAt: orderBy.updatedAt},
+        })
+      : this.prismaService.following.findMany({
+          where: {userTwitterId, space: {finished: conditions.finished}},
+          take: params.take,
+          select: {id: true, spaceId: true, userTwitterId: true},
+          orderBy: {updatedAt: orderBy.updatedAt},
+        })
+    ).then((followings) => ({
+      edges: followings.map(({id, spaceId, userTwitterId}) => ({
+        cursor: id,
+        node: {id, spaceId, userTwitterId},
+      })),
+      pageInfo: {
+        endCursor: followings[followings.length - 1]?.id,
+        hasNextPage: followings.length === params.take,
+      },
+    }));
   }
 
-  async spaceFollowing(
-    twitterId: string,
+  async isSpaceFollowing(
+    userTwitterId: string,
     spaceId: string,
-  ): Promise<boolean | null> {
-    return this.prismaService.space
+  ): Promise<boolean> {
+    return this.prismaService.following
       .findUnique({
-        where: {id: spaceId},
-        select: {followingUsers: {select: {twitterId: true}}},
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          spaceId_userTwitterId: {spaceId, userTwitterId},
+        },
       })
-      .then(
-        (space) =>
-          space &&
-          space.followingUsers
-            .map((user) => user.twitterId)
-            .includes(twitterId),
-      );
+      .then((following) => Boolean(following));
   }
 
   async ensureUser({

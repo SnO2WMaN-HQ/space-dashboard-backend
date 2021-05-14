@@ -1,6 +1,7 @@
+import {Prisma} from '.prisma/client';
 import {Injectable} from '@nestjs/common';
-import {FollowingEntity} from '../following/following.entity';
-import {HostingEntity} from '../hosting/hosting.entity';
+import {FollowingConnectionEntity} from '../following/following.entities';
+import {HostingEntity} from '../hosting/hosting.entities';
 import {PrismaService} from '../prisma/prisma.service';
 import {SpaceEntity} from './space.entity';
 
@@ -19,7 +20,7 @@ export class SpacesService {
         minutesUrl: true,
         openDate: true,
         hostUserTwitterId: true,
-        followingUsers: {select: {twitterId: true}},
+        followingUsers: {select: {id: true}},
       },
     });
   }
@@ -34,9 +35,7 @@ export class SpacesService {
         minutesUrl: true,
         openDate: true,
         hostUserTwitterId: true,
-        followingUsers: {
-          select: {twitterId: true},
-        },
+        followingUsers: {select: {id: true}},
       },
     });
   }
@@ -45,11 +44,40 @@ export class SpacesService {
     return {userTwitterId: hostUserTwitterId, spaceId: id};
   }
 
-  resolveFollowingUsers({id, followingUsers}: SpaceEntity): FollowingEntity[] {
-    return followingUsers.map(({twitterId}) => ({
-      spaceId: id,
-      userTwitterId: twitterId,
+  async resolveFollowingUsers(
+    spaceId: string,
+    params: {take: number} | {cursor: string; take: number},
+    orderBy: {updatedAt: Prisma.SortOrder},
+  ): Promise<FollowingConnectionEntity | null> {
+    return ('cursor' in params
+      ? this.prismaService.following.findMany({
+          where: {spaceId},
+          cursor: {id: params.cursor},
+          skip: 1,
+          take: params.take,
+          select: {id: true, userTwitterId: true, spaceId: true},
+          orderBy,
+        })
+      : this.prismaService.following.findMany({
+          where: {spaceId},
+          take: params.take,
+          select: {id: true, userTwitterId: true, spaceId: true},
+          orderBy,
+        })
+    ).then((followings) => ({
+      edges: followings.map(({id, spaceId, userTwitterId}) => ({
+        cursor: id,
+        node: {id, spaceId, userTwitterId},
+      })),
+      pageInfo: {
+        endCursor: followings[followings.length - 1]?.id,
+        hasNextPage: followings.length === params.take,
+      },
     }));
+  }
+
+  async countFollowingTotal(spaceId: string): Promise<number> {
+    return this.prismaService.following.count({where: {id: spaceId}});
   }
 
   formatLocalDate(date: Date) {

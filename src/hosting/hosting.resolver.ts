@@ -3,7 +3,7 @@ import {SpaceEntity} from '../spaces/space.entity';
 import {SpacesService} from '../spaces/spaces.service';
 import {UserEntity} from '../users/user.entity';
 import {UsersService} from '../users/users.service';
-import {HostingEntity} from './hosting.entity';
+import {HostingConnectionEntity, HostingEntity} from './hosting.entities';
 
 @Resolver(() => HostingEntity)
 export class HostingResolver {
@@ -21,4 +21,9 @@ export class HostingResolver {
   user(@Parent() {userTwitterId: twitterId}: HostingEntity) {
     return this.usersService.findOne({twitterId});
   }
+}
+
+@Resolver(() => HostingConnectionEntity)
+export class HostingConnectionResolver {
+  constructor(private readonly spacesService: SpacesService) {}
 }

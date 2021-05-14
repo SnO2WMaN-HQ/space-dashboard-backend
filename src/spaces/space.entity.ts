@@ -20,5 +20,4 @@ export class SpaceEntity {
   openDate!: Date;
 
   hostUserTwitterId!: string;
-  followingUsers!: {twitterId: string}[];
 }

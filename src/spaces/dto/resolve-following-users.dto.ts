@@ -2,14 +2,14 @@ import {ArgsType, Field, InputType, Int} from '@nestjs/graphql';
 import {Min} from 'class-validator';
 import {OrderBy} from '../../paginate/order-by.enum';
 
-@InputType('ResolveFollowingSpacesArgsOrderBy')
-export class ResolveFollowingSpacesArgsOrderBy {
+@InputType('ResolveFollowingUsersArgsOrderBy')
+export class ResolveFollowingUsersArgsOrderBy {
   @Field(() => OrderBy, {nullable: true, defaultValue: OrderBy.DESC})
   updatedAt!: OrderBy;
 }
 
 @ArgsType()
-export class ResolveFollowingSpacesArgs {
+export class ResolveFollowingUsersArgs {
   @Field((_type) => String, {nullable: true})
   after?: string;
 
@@ -17,11 +17,8 @@ export class ResolveFollowingSpacesArgs {
   @Min(1)
   first!: number;
 
-  @Field(() => Boolean, {defaultValue: false})
-  finished!: boolean;
-
-  @Field(() => ResolveFollowingSpacesArgsOrderBy, {
-    defaultValue: new ResolveFollowingSpacesArgsOrderBy(),
+  @Field(() => ResolveFollowingUsersArgsOrderBy, {
+    defaultValue: new ResolveFollowingUsersArgsOrderBy(),
   })
-  orderBy!: ResolveFollowingSpacesArgsOrderBy;
+  orderBy!: ResolveFollowingUsersArgsOrderBy;
 }

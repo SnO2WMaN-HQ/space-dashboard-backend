@@ -87,4 +87,49 @@ export class SpacesService {
       `${date.getDate()}`.padStart(2, '0'),
     ].join('-');
   }
+
+  async createSpace({
+    openDate,
+    ...rest
+  }: {
+    title: string;
+    description?: string;
+    minutesUrl?: string;
+    openDate: string;
+    hostUserId: string;
+  }): Promise<SpaceEntity> {
+    return this.prismaService.space.create({
+      data: {
+        finished: false,
+        openDate: new Date(openDate),
+        ...rest,
+      },
+    });
+  }
+
+  async isHostUser(spaceId: string, userId: string) {
+    return this.prismaService.space
+      .findUnique({
+        where: {id: spaceId},
+        select: {hostUserId: true},
+      })
+      .then((space) => space && space.hostUserId === userId);
+  }
+
+  async updateSpace(
+    spaceId: string,
+    data: {title?: string; description?: string; minutesUrl?: string},
+  ): Promise<SpaceEntity> {
+    return this.prismaService.space.update({
+      where: {id: spaceId},
+      data,
+    });
+  }
+
+  async finishSpace(spaceId: string): Promise<SpaceEntity> {
+    return this.prismaService.space.update({
+      where: {id: spaceId},
+      data: {finished: true},
+    });
+  }
 }

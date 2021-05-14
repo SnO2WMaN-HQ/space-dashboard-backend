@@ -10,7 +10,7 @@ export class ResolveFollowingUsersArgsOrderBy {
 
 @ArgsType()
 export class ResolveFollowingUsersArgs {
-  @Field((_type) => String, {nullable: true})
+  @Field(() => String, {nullable: true})
   after?: string;
 
   @Field(() => Int)

@@ -2,7 +2,7 @@ import {ArgsType, Field, ID} from '@nestjs/graphql';
 import {IsUUID} from 'class-validator';
 
 @ArgsType()
-export class FindSpaceArgs {
+export class FinishSpaceArgs {
   @Field(() => ID)
   @IsUUID()
   id!: string;

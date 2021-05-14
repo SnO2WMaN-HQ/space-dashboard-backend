@@ -19,6 +19,6 @@ export class HostingResolver {
 
   @ResolveField(() => UserEntity)
   user(@Parent() {userTwitterId: twitterId}: HostingEntity) {
-    return this.usersService.findByTwitterId(twitterId);
+    return this.usersService.findOne({twitterId});
   }
 }

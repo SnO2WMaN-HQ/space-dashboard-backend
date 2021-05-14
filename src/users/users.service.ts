@@ -8,21 +8,29 @@ import {UserEntity} from './user.entity';
 export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
-  async findByTwitterId(twitterId: string): Promise<UserEntity | null> {
+  async findOne(
+    where: {uniqueName: string} | {twitterId: string},
+  ): Promise<UserEntity | null> {
     return this.prismaService.user.findUnique({
-      where: {twitterId},
+      where,
       select: {
         twitterId: true,
+        uniqueName: true,
+        displayName: true,
+        picture: true,
         hostedSpaces: {select: {id: true}},
         followingSpaces: {select: {id: true}},
       },
     });
   }
 
-  async all() {
+  async all(): Promise<UserEntity[]> {
     return this.prismaService.user.findMany({
       select: {
         twitterId: true,
+        uniqueName: true,
+        displayName: true,
+        picture: true,
         hostedSpaces: {select: {id: true}},
         followingSpaces: {select: {id: true}},
       },

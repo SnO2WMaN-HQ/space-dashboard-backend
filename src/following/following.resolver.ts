@@ -19,6 +19,6 @@ export class FollowingResolver {
 
   @ResolveField(() => UserEntity)
   user(@Parent() {userTwitterId: twitterId}: FollowingEntity) {
-    return this.usersService.findByTwitterId(twitterId);
+    return this.usersService.findOne({twitterId});
   }
 }

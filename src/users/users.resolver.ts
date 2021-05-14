@@ -21,8 +21,8 @@ export class UsersResolver {
   }
 
   @Query(() => UserEntity, {name: 'user'})
-  async findUser(@Args() {twitterId}: FindUserArgs) {
-    const result = await this.usersService.findByTwitterId(twitterId);
+  async findUser(@Args() args: FindUserArgs) {
+    const result = await this.usersService.findOne(args);
     if (!result) throw new NotFoundException();
     return result;
   }

@@ -18,8 +18,6 @@ export class UsersService {
         uniqueName: true,
         displayName: true,
         picture: true,
-        hostedSpaces: {select: {id: true}},
-        followingSpaces: {select: {id: true}},
       },
     });
   }
@@ -31,27 +29,56 @@ export class UsersService {
         uniqueName: true,
         displayName: true,
         picture: true,
-        hostedSpaces: {select: {id: true}},
-        followingSpaces: {select: {id: true}},
       },
     });
   }
 
-  resolveHostedSpaces({twitterId, hostedSpaces}: UserEntity): HostingEntity[] {
-    return hostedSpaces.map(({id: spaceId}) => ({
-      userTwitterId: twitterId,
-      spaceId,
-    }));
+  resolveHostedSpaces(
+    twitterId: string,
+    {finished}: {finished: boolean},
+  ): Promise<HostingEntity[] | null> {
+    return this.prismaService.user
+      .findUnique({
+        where: {twitterId},
+        select: {
+          followingSpaces: {
+            where: {finished},
+            select: {id: true},
+          },
+        },
+      })
+      .then(
+        (user) =>
+          user &&
+          user.followingSpaces.map(({id}) => ({
+            spaceId: id,
+            userTwitterId: twitterId,
+          })),
+      );
   }
 
-  resolveFollowingSpaces({
-    twitterId,
-    followingSpaces,
-  }: UserEntity): FollowingEntity[] {
-    return followingSpaces.map(({id: spaceId}) => ({
-      userTwitterId: twitterId,
-      spaceId,
-    }));
+  async resolveFollowingSpaces(
+    twitterId: string,
+    {finished}: {finished: boolean},
+  ): Promise<FollowingEntity[] | null> {
+    return this.prismaService.user
+      .findUnique({
+        where: {twitterId},
+        select: {
+          followingSpaces: {
+            where: {finished},
+            select: {id: true},
+          },
+        },
+      })
+      .then(
+        (user) =>
+          user &&
+          user.followingSpaces.map(({id}) => ({
+            spaceId: id,
+            userTwitterId: twitterId,
+          })),
+      );
   }
 
   async spaceFollowing(

@@ -13,7 +13,4 @@ export class UserEntity {
 
   @Field(() => ID)
   picture!: string;
-
-  hostedSpaces!: {id: string}[];
-  followingSpaces!: {id: string}[];
 }

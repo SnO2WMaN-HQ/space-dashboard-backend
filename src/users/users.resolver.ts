@@ -10,14 +10,40 @@ import {UsersService} from './users.service';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
+  @ResolveField(() => String)
+  twitterUrl(
+    @Parent()
+    {uniqueName}: UserEntity,
+  ): string {
+    return new URL(uniqueName, 'https://twitter.com').toString();
+  }
+
   @ResolveField(() => [HostingEntity])
-  hostedSpaces(user: UserEntity) {
-    return this.usersService.resolveHostedSpaces(user);
+  async hostedSpaces(
+    @Parent()
+    {twitterId}: UserEntity,
+    @Args({type: () => ResolveHostedSpacesArgs})
+    {finished}: ResolveHostedSpacesArgs,
+  ): Promise<HostingEntity[]> {
+    const result = await this.usersService.resolveHostedSpaces(twitterId, {
+      finished,
+    });
+    if (!result) throw new NotFoundException();
+    return result;
   }
 
   @ResolveField(() => [FollowingEntity])
-  followingSpaces(user: UserEntity) {
-    return this.usersService.resolveFollowingSpaces(user);
+  async followingSpaces(
+    @Parent()
+    {twitterId}: UserEntity,
+    @Args({type: () => ResolveFollowingSpacesArgs})
+    {finished}: ResolveFollowingSpacesArgs,
+  ): Promise<FollowingEntity[]> {
+    const result = await this.usersService.resolveFollowingSpaces(twitterId, {
+      finished,
+    });
+    if (!result) throw new NotFoundException();
+    return result;
   }
 
   @ResolveField(() => Boolean)
@@ -31,14 +57,14 @@ export class UsersResolver {
   }
 
   @Query(() => UserEntity, {name: 'user'})
-  async findUser(@Args() args: FindUserArgs) {
+  async findUser(@Args() args: FindUserArgs): Promise<UserEntity> {
     const result = await this.usersService.findOne(args);
     if (!result) throw new NotFoundException();
     return result;
   }
 
   @Query(() => [UserEntity])
-  async allUsers() {
+  async allUsers(): Promise<UserEntity[]> {
     return this.usersService.all();
   }
 }

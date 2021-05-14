@@ -1,8 +1,8 @@
 import {Prisma} from '.prisma/client';
 import {Injectable} from '@nestjs/common';
-import {FollowingConnectionEntity} from '../following/following.entities';
-import {HostingEntity} from '../hosting/hosting.entities';
+import {HostingEntity} from '../hosting/hosting.entity';
 import {PrismaService} from '../prisma/prisma.service';
+import {SpaceFollowingUsersConnection} from './dto/resolve-following-users.dto';
 import {SpaceEntity} from './space.entity';
 
 @Injectable()
@@ -44,11 +44,11 @@ export class SpacesService {
     return {userId: hostUserId, spaceId: id};
   }
 
-  async resolveFollowingUsers(
+  async getFollowingUsers(
     spaceId: string,
     params: {take: number} | {cursor: string; take: number},
     orderBy: {updatedAt: Prisma.SortOrder},
-  ): Promise<FollowingConnectionEntity | null> {
+  ): Promise<SpaceFollowingUsersConnection | null> {
     return ('cursor' in params
       ? this.prismaService.following.findMany({
           where: {spaceId},

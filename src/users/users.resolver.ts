@@ -10,12 +10,16 @@ import {
 import {URL} from 'url';
 import {CurrentUser, CurrentUserPayload} from '../auth/current-user.decorator';
 import {GqlAuthGuard} from '../auth/gql-auth.guard';
-import {FollowingConnectionEntity} from '../following/following.entities';
-import {HostingConnectionEntity} from '../hosting/hosting.entities';
 import {EnsureUserArgs} from './dto/ensure-user.dto';
 import {FindUserArgs} from './dto/find-user.dto';
-import {ResolveFollowingSpacesArgs} from './dto/resolve-following-spaces.dto';
-import {ResolveHostedSpacesArgs} from './dto/resolve-hosted-spaces.dto';
+import {
+  UserFollowingSpacesArgs,
+  UserFollowingSpacesConnection,
+} from './dto/resolve-following-spaces.dto';
+import {
+  UserHostedSpacesArgs,
+  UserHostedSpacesConnection,
+} from './dto/resolve-hosted-spaces.dto';
 import {UserEntity} from './user.entity';
 import {UsersService} from './users.service';
 
@@ -31,13 +35,13 @@ export class UsersResolver {
     return new URL(uniqueName, 'https://twitter.com').toString();
   }
 
-  @ResolveField(() => HostingConnectionEntity)
+  @ResolveField(() => UserHostedSpacesConnection)
   async hostedSpaces(
     @Parent()
     {id}: UserEntity,
-    @Args({type: () => ResolveHostedSpacesArgs})
-    {finished, orderBy, ...params}: ResolveHostedSpacesArgs,
-  ): Promise<HostingConnectionEntity> {
+    @Args({type: () => UserHostedSpacesArgs})
+    {finished, orderBy, ...params}: UserHostedSpacesArgs,
+  ): Promise<UserHostedSpacesConnection> {
     const result = await this.usersService.getHostedSpaces(
       id,
       params.after
@@ -50,13 +54,13 @@ export class UsersResolver {
     return result;
   }
 
-  @ResolveField(() => FollowingConnectionEntity)
+  @ResolveField(() => UserFollowingSpacesConnection)
   async followingSpaces(
     @Parent()
     {id}: UserEntity,
-    @Args({type: () => ResolveFollowingSpacesArgs})
-    {finished, orderBy, ...params}: ResolveFollowingSpacesArgs,
-  ): Promise<FollowingConnectionEntity> {
+    @Args({type: () => UserFollowingSpacesArgs})
+    {finished, orderBy, ...params}: UserFollowingSpacesArgs,
+  ): Promise<UserFollowingSpacesConnection> {
     const result = await this.usersService.getFollowingSpaces(
       id,
       params.after

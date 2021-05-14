@@ -3,7 +3,7 @@ import {SpaceEntity} from '../spaces/space.entity';
 import {SpacesService} from '../spaces/spaces.service';
 import {UserEntity} from '../users/user.entity';
 import {UsersService} from '../users/users.service';
-import {HostingConnectionEntity, HostingEntity} from './hosting.entities';
+import {HostingEntity} from './hosting.entity';
 
 @Resolver(() => HostingEntity)
 export class HostingResolver {
@@ -21,9 +21,4 @@ export class HostingResolver {
   user(@Parent() {userId}: HostingEntity) {
     return this.usersService.findOne({id: userId});
   }
-}
-
-@Resolver(() => HostingConnectionEntity)
-export class HostingConnectionResolver {
-  constructor(private readonly spacesService: SpacesService) {}
 }

@@ -8,12 +8,14 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import {LocalDateResolver} from 'graphql-scalars';
-import {FollowingConnectionEntity} from '../following/following.entities';
-import {HostingEntity} from '../hosting/hosting.entities';
+import {HostingEntity} from '../hosting/hosting.entity';
 import {CreateSpaceArgs} from './dto/create-space.dto';
 import {FindSpaceArgs} from './dto/find-space.dto';
 import {FinishSpaceArgs} from './dto/finish-space.dto';
-import {ResolveFollowingUsersArgs} from './dto/resolve-following-users.dto';
+import {
+  SpaceFollowingUsersArgs,
+  SpaceFollowingUsersConnection,
+} from './dto/resolve-following-users.dto';
 import {UpdateSpaceArgs} from './dto/update-space.dto';
 import {SpaceEntity} from './space.entity';
 import {SpacesService} from './spaces.service';
@@ -27,13 +29,13 @@ export class SpacesResolver {
     return this.spacesService.resolveHostUser(parent);
   }
 
-  @ResolveField(() => FollowingConnectionEntity)
+  @ResolveField(() => SpaceFollowingUsersConnection)
   async followingUsers(
     @Parent() {id}: SpaceEntity,
-    @Args({type: () => ResolveFollowingUsersArgs})
-    {orderBy, ...params}: ResolveFollowingUsersArgs,
-  ): Promise<FollowingConnectionEntity> {
-    const result = await this.spacesService.resolveFollowingUsers(
+    @Args({type: () => SpaceFollowingUsersArgs})
+    {orderBy, ...params}: SpaceFollowingUsersArgs,
+  ): Promise<SpaceFollowingUsersConnection> {
+    const result = await this.spacesService.getFollowingUsers(
       id,
       params.after
         ? {take: params.first, cursor: params.after}

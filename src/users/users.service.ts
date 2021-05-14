@@ -1,8 +1,8 @@
 import {Prisma} from '.prisma/client';
 import {Injectable} from '@nestjs/common';
-import {FollowingConnectionEntity} from '../following/following.entities';
-import {HostingConnectionEntity} from '../hosting/hosting.entities';
 import {PrismaService} from '../prisma/prisma.service';
+import {UserFollowingSpacesConnection} from './dto/resolve-following-spaces.dto';
+import {UserHostedSpacesConnection} from './dto/resolve-hosted-spaces.dto';
 import {UserEntity} from './user.entity';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
   async findOne(
-    where: {id: string} | {uniqueName: string},
+    where: {id: string} | {uniqueName: string} | {twitterId: string},
   ): Promise<UserEntity | null> {
     return this.prismaService.user.findUnique({
       where,
@@ -41,7 +41,7 @@ export class UsersService {
     params: {take: number} | {cursor: string; take: number},
     conditions: {finished: boolean},
     orderBy: {openDate: Prisma.SortOrder},
-  ): Promise<HostingConnectionEntity | null> {
+  ): Promise<UserHostedSpacesConnection | null> {
     return ('cursor' in params
       ? this.prismaService.space.findMany({
           where: {
@@ -80,7 +80,7 @@ export class UsersService {
     params: {take: number} | {cursor: string; take: number},
     conditions: {finished: boolean},
     orderBy: {updatedAt: Prisma.SortOrder},
-  ): Promise<FollowingConnectionEntity | null> {
+  ): Promise<UserFollowingSpacesConnection | null> {
     return ('cursor' in params
       ? this.prismaService.following.findMany({
           where: {

@@ -1,15 +1,17 @@
-import {ArgsType, Field, InputType, Int} from '@nestjs/graphql';
+import {ArgsType, Field, InputType, Int, ObjectType} from '@nestjs/graphql';
 import {Min} from 'class-validator';
+import {HostingEntity} from '../../hosting/hosting.entity';
 import {OrderBy} from '../../paginate/order-by.enum';
+import {PageInfoEntity} from '../../paginate/page-info.entity';
 
-@InputType('ResolveHostedSpacesArgsOrderBy')
-export class ResolveHostedSpacesArgsOrderBy {
+@InputType()
+export class UserHostedSpacesArgsOrderBy {
   @Field(() => OrderBy, {nullable: true, defaultValue: OrderBy.DESC})
   openDate!: OrderBy;
 }
 
 @ArgsType()
-export class ResolveHostedSpacesArgs {
+export class UserHostedSpacesArgs {
   @Field((_type) => String, {nullable: true})
   after?: string;
 
@@ -20,8 +22,26 @@ export class ResolveHostedSpacesArgs {
   @Field(() => Boolean, {defaultValue: false})
   finished!: boolean;
 
-  @Field(() => ResolveHostedSpacesArgsOrderBy, {
-    defaultValue: new ResolveHostedSpacesArgsOrderBy(),
+  @Field(() => UserHostedSpacesArgsOrderBy, {
+    defaultValue: new UserHostedSpacesArgsOrderBy(),
   })
-  orderBy!: ResolveHostedSpacesArgsOrderBy;
+  orderBy!: UserHostedSpacesArgsOrderBy;
+}
+
+@ObjectType()
+export class UserHostedSpacesEdge {
+  @Field(() => String)
+  cursor!: string;
+
+  @Field(() => HostingEntity)
+  node!: HostingEntity;
+}
+
+@ObjectType()
+export class UserHostedSpacesConnection {
+  @Field(() => [UserHostedSpacesEdge])
+  edges!: UserHostedSpacesEdge[];
+
+  @Field(() => PageInfoEntity)
+  pageInfo!: PageInfoEntity;
 }

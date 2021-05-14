@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {PrismaService} from '../prisma/prisma.service';
-import {FollowingEntity} from './following.entities';
+import {FollowingEntity} from './following.entity';
 
 @Injectable()
 export class FollowingService {

@@ -5,7 +5,7 @@ import {SpacesService} from '../spaces/spaces.service';
 import {UserEntity} from '../users/user.entity';
 import {UsersService} from '../users/users.service';
 import {FollowSpaceArgs} from './dto/follow-space.dto';
-import {FollowingConnectionEntity, FollowingEntity} from './following.entities';
+import {FollowingEntity} from './following.entity';
 import {FollowingService} from './following.service';
 
 @Resolver(() => FollowingEntity)
@@ -35,9 +35,4 @@ export class FollowingResolver {
     if (isHost) throw new ForbiddenException();
     return this.followingService.upsertFollowing({spaceId, userId});
   }
-}
-
-@Resolver(() => FollowingConnectionEntity)
-export class FollowingConnectionResolver {
-  constructor(private readonly spacesService: SpacesService) {}
 }

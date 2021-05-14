@@ -1,15 +1,17 @@
-import {ArgsType, Field, InputType, Int} from '@nestjs/graphql';
+import {ArgsType, Field, InputType, Int, ObjectType} from '@nestjs/graphql';
 import {Min} from 'class-validator';
+import {FollowingEntity} from '../../following/following.entity';
 import {OrderBy} from '../../paginate/order-by.enum';
+import {PageInfoEntity} from '../../paginate/page-info.entity';
 
-@InputType('ResolveFollowingUsersArgsOrderBy')
-export class ResolveFollowingUsersArgsOrderBy {
+@InputType()
+export class SpaceFollowingUsersArgsOrderBy {
   @Field(() => OrderBy, {nullable: true, defaultValue: OrderBy.DESC})
   updatedAt!: OrderBy;
 }
 
 @ArgsType()
-export class ResolveFollowingUsersArgs {
+export class SpaceFollowingUsersArgs {
   @Field(() => String, {nullable: true})
   after?: string;
 
@@ -17,8 +19,26 @@ export class ResolveFollowingUsersArgs {
   @Min(1)
   first!: number;
 
-  @Field(() => ResolveFollowingUsersArgsOrderBy, {
-    defaultValue: new ResolveFollowingUsersArgsOrderBy(),
+  @Field(() => SpaceFollowingUsersArgsOrderBy, {
+    defaultValue: new SpaceFollowingUsersArgsOrderBy(),
   })
-  orderBy!: ResolveFollowingUsersArgsOrderBy;
+  orderBy!: SpaceFollowingUsersArgsOrderBy;
+}
+
+@ObjectType()
+export class SpaceFollowingUsersEdge {
+  @Field(() => String)
+  cursor!: string;
+
+  @Field(() => FollowingEntity)
+  node!: FollowingEntity;
+}
+
+@ObjectType()
+export class SpaceFollowingUsersConnection {
+  @Field(() => [SpaceFollowingUsersEdge])
+  edges!: SpaceFollowingUsersEdge[];
+
+  @Field(() => PageInfoEntity)
+  pageInfo!: PageInfoEntity;
 }

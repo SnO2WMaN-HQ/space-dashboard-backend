@@ -74,7 +74,7 @@ export class UsersResolver {
   }
 
   @ResolveField(() => Boolean)
-  async spaceFollowing(
+  async isFollowingSpace(
     @Parent() {id}: UserEntity,
     @Args('spaceId', {type: () => String}) spaceId: string,
   ): Promise<boolean> {
@@ -97,9 +97,9 @@ export class UsersResolver {
   @Query(() => UserEntity)
   async currentUser(
     @CurrentUser()
-    {id}: CurrentUserPayload,
+    {id: currentUserId}: CurrentUserPayload,
   ) {
-    return this.usersService.findOne({id});
+    return this.usersService.findOne({id: currentUserId});
   }
 
   @Mutation(() => UserEntity)

@@ -1,4 +1,8 @@
-import {NotFoundException, UsePipes, ValidationPipe} from '@nestjs/common';
+import {
+  NotFoundException,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import {
   Args,
   Mutation,
@@ -8,6 +12,8 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import {LocalDateResolver} from 'graphql-scalars';
+import {CurrentUser, CurrentUserPayload} from '../auth/current-user.decorator';
+import {GqlAuthGuard} from '../auth/gql-auth.guard';
 import {HostingEntity} from '../hosting/hosting.entity';
 import {CreateSpaceArgs} from './dto/create-space.dto';
 import {FindSpaceArgs} from './dto/find-space.dto';
@@ -64,24 +70,40 @@ export class SpacesResolver {
   }
 
   @Mutation(() => SpaceEntity)
-  @UsePipes(new ValidationPipe())
+  @UseGuards(GqlAuthGuard)
   async createSpace(
-    @Args({type: () => CreateSpaceArgs}) {...data}: CreateSpaceArgs,
+    @CurrentUser() {id: currentUserId}: CurrentUserPayload,
+    @Args({type: () => CreateSpaceArgs}) {hostUserId, ...data}: CreateSpaceArgs,
   ): Promise<SpaceEntity> {
-    return this.spacesService.createSpace(data);
+    if (currentUserId !== hostUserId) throw new UnauthorizedException();
+
+    return this.spacesService.createSpace({hostUserId, ...data});
   }
 
   @Mutation(() => SpaceEntity)
+  @UseGuards(GqlAuthGuard)
   async updateSpace(
-    @Args({type: () => UpdateSpaceArgs}) {id, ...data}: UpdateSpaceArgs,
+    @CurrentUser() {id: currentUserId}: CurrentUserPayload,
+    @Args({type: () => UpdateSpaceArgs})
+    {id: spaceId, ...data}: UpdateSpaceArgs,
   ): Promise<SpaceEntity> {
-    return this.spacesService.updateSpace(id, data);
+    const isHost = await this.spacesService.isHostUser(spaceId, currentUserId);
+    if (isHost === null) throw new NotFoundException();
+    if (!isHost) throw new UnauthorizedException();
+
+    return this.spacesService.updateSpace(spaceId, data);
   }
 
   @Mutation(() => SpaceEntity)
+  @UseGuards(GqlAuthGuard)
   async finishSpace(
-    @Args({type: () => FinishSpaceArgs}) {id}: FinishSpaceArgs,
+    @CurrentUser() {id: currentUserId}: CurrentUserPayload,
+    @Args({type: () => FinishSpaceArgs}) {id: spaceId}: FinishSpaceArgs,
   ): Promise<SpaceEntity> {
-    return this.spacesService.finishSpace(id);
+    const isHost = await this.spacesService.isHostUser(spaceId, currentUserId);
+    if (isHost === null) throw new NotFoundException();
+    if (!isHost) throw new UnauthorizedException();
+
+    return this.spacesService.finishSpace(spaceId);
   }
 }

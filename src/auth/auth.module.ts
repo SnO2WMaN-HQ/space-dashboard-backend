@@ -1,7 +1,7 @@
 import {Module} from '@nestjs/common';
-import {ConfigModule, ConfigType} from '@nestjs/config';
-import {JwtModule} from '@nestjs/jwt';
+import {ConfigModule} from '@nestjs/config';
 import {PassportModule} from '@nestjs/passport';
+import {AccountsModule} from '../accounts/accounts.module';
 import {AuthConfig} from './auth.config';
 import {JwtStrategy} from './jwt.strategy';
 
@@ -9,13 +9,7 @@ import {JwtStrategy} from './jwt.strategy';
   imports: [
     ConfigModule.forFeature(AuthConfig),
     PassportModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule.forFeature(AuthConfig)],
-      inject: [AuthConfig.KEY],
-      useFactory: async (config: ConfigType<typeof AuthConfig>) => ({
-        secret: config.jwt.secret,
-      }),
-    }),
+    AccountsModule,
   ],
   providers: [JwtStrategy],
 })

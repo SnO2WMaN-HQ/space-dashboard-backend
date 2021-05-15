@@ -1,16 +1,7 @@
 import {NotFoundException, UseGuards} from '@nestjs/common';
-import {
-  Args,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
-import {URL} from 'url';
+import {Args, Parent, Query, ResolveField, Resolver} from '@nestjs/graphql';
 import {CurrentUser, CurrentUserPayload} from '../auth/current-user.decorator';
 import {GqlAuthGuard} from '../auth/gql-auth.guard';
-import {EnsureUserArgs} from './dto/ensure-user.dto';
 import {FindUserArgs} from './dto/find-user.dto';
 import {
   UserFollowingSpacesArgs,
@@ -26,14 +17,6 @@ import {UsersService} from './users.service';
 @Resolver(() => UserEntity)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
-
-  @ResolveField(() => String)
-  twitterUrl(
-    @Parent()
-    {uniqueName}: UserEntity,
-  ): string {
-    return new URL(uniqueName, 'https://twitter.com').toString();
-  }
 
   @ResolveField(() => UserHostedSpacesConnection)
   async hostedSpaces(
@@ -82,6 +65,7 @@ export class UsersResolver {
   }
 
   @Query(() => UserEntity, {name: 'user'})
+  @UseGuards(GqlAuthGuard)
   async findUser(@Args() args: FindUserArgs): Promise<UserEntity> {
     const result = await this.usersService.findOne(args);
     if (!result) throw new NotFoundException();
@@ -89,23 +73,21 @@ export class UsersResolver {
   }
 
   @Query(() => [UserEntity])
+  @UseGuards(GqlAuthGuard)
   async allUsers(): Promise<UserEntity[]> {
     return this.usersService.all();
   }
 
+  @Query(() => UserEntity, {nullable: true})
   @UseGuards(GqlAuthGuard)
-  @Query(() => UserEntity)
   async currentUser(
-    @CurrentUser()
-    {id: currentUserId}: CurrentUserPayload,
-  ) {
-    return this.usersService.findOne({id: currentUserId});
-  }
+    @CurrentUser() currentUser: CurrentUserPayload,
+  ): Promise<UserEntity | null> {
+    // eslint-disable-next-line unicorn/no-null
+    if (!currentUser) return null;
 
-  @Mutation(() => UserEntity)
-  async ensureUser(
-    @Args({type: () => EnsureUserArgs}) {data}: EnsureUserArgs,
-  ): Promise<UserEntity> {
-    return this.usersService.ensureUser(data);
+    const result = await this.usersService.findOne({id: currentUser.id});
+    if (!result) throw new NotFoundException();
+    return result;
   }
 }

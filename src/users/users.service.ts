@@ -10,13 +10,12 @@ export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
   async findOne(
-    where: {id: string} | {uniqueName: string} | {twitterId: string},
+    where: {id: string} | {uniqueName: string},
   ): Promise<UserEntity | null> {
     return this.prismaService.user.findUnique({
       where,
       select: {
         id: true,
-        twitterId: true,
         uniqueName: true,
         displayName: true,
         picture: true,
@@ -28,7 +27,6 @@ export class UsersService {
     return this.prismaService.user.findMany({
       select: {
         id: true,
-        twitterId: true,
         uniqueName: true,
         displayName: true,
         picture: true,
@@ -125,21 +123,21 @@ export class UsersService {
       .then((following) => Boolean(following));
   }
 
-  async ensureUser({
-    twitterId,
-    uniqueName,
-    displayName,
-    picture,
-  }: {
-    twitterId: string;
-    uniqueName: string;
-    displayName: string;
-    picture: string;
-  }): Promise<UserEntity> {
+  async ensureUser(
+    where: {id: string},
+    {
+      uniqueName,
+      displayName,
+      picture,
+    }: {
+      uniqueName: string;
+      displayName: string;
+      picture: string;
+    },
+  ): Promise<UserEntity> {
     return this.prismaService.user.upsert({
-      where: {twitterId},
+      where,
       create: {
-        twitterId,
         uniqueName,
         displayName,
         picture,
@@ -151,12 +149,9 @@ export class UsersService {
       },
       select: {
         id: true,
-        twitterId: true,
         uniqueName: true,
         displayName: true,
         picture: true,
-        hostedSpaces: {select: {id: true}},
-        followingSpaces: {select: {id: true}},
       },
     });
   }

@@ -1,10 +1,11 @@
 datasource db {
-  provider = "postgres"
+  provider = "mysql"
   url      = env("DASHBOARD_DATABASE_URL")
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["selectRelationCount"]
 }
 
 model Space {
@@ -19,14 +20,45 @@ model Space {
   openDate DateTime  @db.Date
   openTime DateTime? @db.Time
 
-  hostUser          User   @relation("UserSpaceHostRelation", fields: [hostUserTwitterId], references: [twitterId])
-  hostUserTwitterId String
+  hostUser   User   @relation(fields: [hostUserId], references: [id])
+  hostUserId String
 
-  followingUsers User[] @relation("UserSpaceFollowingRelation")
+  followingUsers Following[]
+}
+
+model Following {
+  id String @id @default(uuid())
+
+  updatedAt DateTime @updatedAt
+
+  comment String?
+
+  space   Space  @relation(fields: [spaceId], references: [id])
+  spaceId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  @@unique([spaceId, userId])
+}
+
+model Account {
+  id String @id @default(uuid())
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  twitterId String @unique
 }
 
 model User {
-  twitterId       String  @id
-  hostedSpaces    Space[] @relation("UserSpaceHostRelation")
-  followingSpaces Space[] @relation("UserSpaceFollowingRelation")
+  id String @id @default(uuid())
+
+  uniqueName  String @unique
+  displayName String
+  picture     String
+
+  hostingSpaces   Space[]
+  followingSpaces Following[]
+  Account         Account[]
 }

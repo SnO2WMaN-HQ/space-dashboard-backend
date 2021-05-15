@@ -8,9 +8,6 @@ export class UserEntity {
   @Field(() => ID)
   uniqueName!: string;
 
-  @Field(() => ID)
-  twitterId!: string;
-
   @Field(() => String)
   displayName!: string;
 

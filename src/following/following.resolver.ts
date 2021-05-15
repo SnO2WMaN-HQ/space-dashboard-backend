@@ -35,11 +35,12 @@ export class FollowingResolver {
   @Mutation(() => FollowingEntity)
   @UseGuards(GqlAuthGuard)
   async followSpace(
-    @CurrentUser() {id: currentUserId}: CurrentUserPayload,
+    @CurrentUser() currentUser: CurrentUserPayload,
 
     @Args({type: () => FollowSpaceArgs}) {spaceId, userId}: FollowSpaceArgs,
   ): Promise<FollowingEntity> {
-    if (userId !== currentUserId) throw new UnauthorizedException();
+    if (!currentUser || currentUser.id !== userId)
+      throw new UnauthorizedException();
 
     const isHost = await this.spacesService.isHostUser(spaceId, userId);
     if (isHost === null) throw new NotFoundException();

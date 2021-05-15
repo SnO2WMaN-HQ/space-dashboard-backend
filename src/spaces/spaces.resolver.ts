@@ -58,6 +58,7 @@ export class SpacesResolver {
   }
 
   @Query(() => SpaceEntity, {name: 'space'})
+  @UseGuards(GqlAuthGuard)
   async findSpace(@Args() {id}: FindSpaceArgs): Promise<SpaceEntity> {
     const result = await this.spacesService.findById(id);
     if (!result) throw new NotFoundException();
@@ -65,6 +66,7 @@ export class SpacesResolver {
   }
 
   @Query(() => [SpaceEntity])
+  @UseGuards(GqlAuthGuard)
   async allSpaces(): Promise<SpaceEntity[]> {
     return this.spacesService.all();
   }
@@ -72,10 +74,11 @@ export class SpacesResolver {
   @Mutation(() => SpaceEntity)
   @UseGuards(GqlAuthGuard)
   async createSpace(
-    @CurrentUser() {id: currentUserId}: CurrentUserPayload,
+    @CurrentUser() currentUser: CurrentUserPayload,
     @Args({type: () => CreateSpaceArgs}) {hostUserId, ...data}: CreateSpaceArgs,
   ): Promise<SpaceEntity> {
-    if (currentUserId !== hostUserId) throw new UnauthorizedException();
+    if (!currentUser || currentUser.id !== hostUserId)
+      throw new UnauthorizedException();
 
     return this.spacesService.createSpace({hostUserId, ...data});
   }
@@ -83,27 +86,19 @@ export class SpacesResolver {
   @Mutation(() => SpaceEntity)
   @UseGuards(GqlAuthGuard)
   async updateSpace(
-    @CurrentUser() {id: currentUserId}: CurrentUserPayload,
+    @CurrentUser() currentUser: CurrentUserPayload,
     @Args({type: () => UpdateSpaceArgs})
     {id: spaceId, ...data}: UpdateSpaceArgs,
   ): Promise<SpaceEntity> {
-    const isHost = await this.spacesService.isHostUser(spaceId, currentUserId);
-    if (isHost === null) throw new NotFoundException();
-    if (!isHost) throw new UnauthorizedException();
-
     return this.spacesService.updateSpace(spaceId, data);
   }
 
   @Mutation(() => SpaceEntity)
   @UseGuards(GqlAuthGuard)
   async finishSpace(
-    @CurrentUser() {id: currentUserId}: CurrentUserPayload,
+    @CurrentUser() currentUser: CurrentUserPayload,
     @Args({type: () => FinishSpaceArgs}) {id: spaceId}: FinishSpaceArgs,
   ): Promise<SpaceEntity> {
-    const isHost = await this.spacesService.isHostUser(spaceId, currentUserId);
-    if (isHost === null) throw new NotFoundException();
-    if (!isHost) throw new UnauthorizedException();
-
     return this.spacesService.finishSpace(spaceId);
   }
 }

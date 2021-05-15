@@ -8,6 +8,9 @@ dist/
 .env*
 !.env.example
 
+# logfile
+*.log
+
 # VSCode
 .vscode/*
 !.vscode/extensions.json

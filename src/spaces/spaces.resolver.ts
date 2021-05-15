@@ -90,6 +90,12 @@ export class SpacesResolver {
     @Args({type: () => UpdateSpaceArgs})
     {id: spaceId, ...data}: UpdateSpaceArgs,
   ): Promise<SpaceEntity> {
+    if (
+      !currentUser ||
+      !(await this.spacesService.isHostUser(spaceId, currentUser.id))
+    )
+      throw new UnauthorizedException();
+
     return this.spacesService.updateSpace(spaceId, data);
   }
 
@@ -99,6 +105,12 @@ export class SpacesResolver {
     @CurrentUser() currentUser: CurrentUserPayload,
     @Args({type: () => FinishSpaceArgs}) {id: spaceId}: FinishSpaceArgs,
   ): Promise<SpaceEntity> {
+    if (
+      !currentUser ||
+      !(await this.spacesService.isHostUser(spaceId, currentUser.id))
+    )
+      throw new UnauthorizedException();
+
     return this.spacesService.finishSpace(spaceId);
   }
 }

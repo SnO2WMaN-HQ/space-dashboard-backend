@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import {Args, Mutation, Parent, ResolveField, Resolver} from '@nestjs/graphql';
 import {CurrentUser, CurrentUserPayload} from '../auth/current-user.decorator';
-import {GqlAuthGuard} from '../auth/gql-auth.guard';
+import {GqlAuthnGuard} from '../auth/gql-authn.guard';
 import {SpaceEntity} from '../spaces/space.entity';
 import {SpacesService} from '../spaces/spaces.service';
 import {UserEntity} from '../users/user.entity';
@@ -33,7 +33,7 @@ export class FollowingResolver {
   }
 
   @Mutation(() => FollowingEntity)
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthnGuard)
   async followSpace(
     @CurrentUser() currentUser: CurrentUserPayload,
 

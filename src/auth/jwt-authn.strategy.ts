@@ -4,13 +4,13 @@ import {PassportStrategy} from '@nestjs/passport';
 import {passportJwtSecret} from 'jwks-rsa';
 import {ExtractJwt, Strategy} from 'passport-jwt';
 import {AccountsService} from '../accounts/accounts.service';
-import {AuthConfig} from './auth.config';
+import {AuthnConfig} from './auth.config';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtAuthnStrategy extends PassportStrategy(Strategy, 'jwt-authn') {
   constructor(
-    @Inject(AuthConfig.KEY)
-    private readonly config: ConfigType<typeof AuthConfig>,
+    @Inject(AuthnConfig.KEY)
+    private readonly config: ConfigType<typeof AuthnConfig>,
     private readonly accountsService: AccountsService,
   ) {
     super({

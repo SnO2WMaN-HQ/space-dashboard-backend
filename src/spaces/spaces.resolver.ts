@@ -13,7 +13,8 @@ import {
 } from '@nestjs/graphql';
 import {LocalDateResolver} from 'graphql-scalars';
 import {CurrentUser, CurrentUserPayload} from '../auth/current-user.decorator';
-import {GqlAuthGuard} from '../auth/gql-auth.guard';
+import {GqlAuthnGuard} from '../auth/gql-authn.guard';
+import {GqlAuthzGuard} from '../auth/gql-authz.guard';
 import {HostingEntity} from '../hosting/hosting.entity';
 import {CreateSpaceArgs} from './dto/create-space.dto';
 import {FindSpaceArgs} from './dto/find-space.dto';
@@ -58,7 +59,7 @@ export class SpacesResolver {
   }
 
   @Query(() => SpaceEntity, {name: 'space'})
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthzGuard)
   async findSpace(@Args() {id}: FindSpaceArgs): Promise<SpaceEntity> {
     const result = await this.spacesService.findById(id);
     if (!result) throw new NotFoundException();
@@ -66,13 +67,13 @@ export class SpacesResolver {
   }
 
   @Query(() => [SpaceEntity])
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthzGuard)
   async allSpaces(): Promise<SpaceEntity[]> {
     return this.spacesService.all();
   }
 
   @Mutation(() => SpaceEntity)
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthnGuard)
   async createSpace(
     @CurrentUser() currentUser: CurrentUserPayload,
     @Args({type: () => CreateSpaceArgs}) {hostUserId, ...data}: CreateSpaceArgs,
@@ -84,7 +85,7 @@ export class SpacesResolver {
   }
 
   @Mutation(() => SpaceEntity)
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthnGuard)
   async updateSpace(
     @CurrentUser() currentUser: CurrentUserPayload,
     @Args({type: () => UpdateSpaceArgs})
@@ -100,7 +101,7 @@ export class SpacesResolver {
   }
 
   @Mutation(() => SpaceEntity)
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthnGuard)
   async finishSpace(
     @CurrentUser() currentUser: CurrentUserPayload,
     @Args({type: () => FinishSpaceArgs}) {id: spaceId}: FinishSpaceArgs,

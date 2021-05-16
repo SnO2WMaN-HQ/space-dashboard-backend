@@ -56,7 +56,7 @@ model User {
   accountId String
   account   Account @relation(fields: [accountId], references: [id])
 
-  uniqueName  String @unique
+  uniqueName  String @unique @db.Citext
   displayName String
   picture     String
 

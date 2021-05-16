@@ -4,6 +4,7 @@
   "scripts": {
     "build": "nest build",
     "dev": "nest start --watch",
+    "start:local": "nest start",
     "start": "node dist/main",
     "ts-check": "tsc --noEmit",
     "lint": "scripty",

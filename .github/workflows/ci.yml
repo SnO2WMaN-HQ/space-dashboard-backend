@@ -1,0 +1,34 @@
+name: CI
+
+on: [push]
+
+jobs:
+  ts-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - run: yarn install --frozen-lockfile
+      - run: yarn run ts-check
+
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - run: yarn install --frozen-lockfile
+      - run: yarn run lint:eslint
+
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - run: yarn install --frozen-lockfile
+      - run: yarn run lint:prettier

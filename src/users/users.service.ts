@@ -122,37 +122,4 @@ export class UsersService {
       })
       .then((following) => Boolean(following));
   }
-
-  async ensureUser(
-    where: {id: string},
-    {
-      uniqueName,
-      displayName,
-      picture,
-    }: {
-      uniqueName: string;
-      displayName: string;
-      picture: string;
-    },
-  ): Promise<UserEntity> {
-    return this.prismaService.user.upsert({
-      where,
-      create: {
-        uniqueName,
-        displayName,
-        picture,
-      },
-      update: {
-        uniqueName,
-        displayName,
-        picture,
-      },
-      select: {
-        id: true,
-        uniqueName: true,
-        displayName: true,
-        picture: true,
-      },
-    });
-  }
 }

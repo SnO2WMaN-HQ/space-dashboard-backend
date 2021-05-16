@@ -1,7 +1,7 @@
 import {registerAs} from '@nestjs/config';
 import {URL} from 'url';
 
-export const AuthConfig = registerAs('auth', () => ({
+export const AuthnConfig = registerAs('auth', () => ({
   audience: process.env.AUTH0_AUDIENCE!,
   issuer: process.env.AUTH0_ISSUER_URL!,
   jwksUri: new URL(

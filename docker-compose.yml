@@ -10,13 +10,14 @@ services:
       ADMINER_DESIGN: $ADMINER_DESIGN
 
   local-db:
-    image: mysql:8.0@sha256:5d1d733f32c28d47061e9d5c2b1fb49b4628c4432901632a70019ec950eda491
+    image: postgres:13
     environment:
-      MYSQL_ROOT_PASSWORD: $DEV_DB_PASSWORD
-      MYSQL_DATABASE: $DEV_DB_DATABASE
+      POSTGRES_USER: $DEV_DB_USERNAME
+      POSTGRES_PASSWORD: $DEV_DB_PASSWORD
+      POSTGRES_DB: $DEV_DB_DATABASE
     ports:
       - published: $DEV_DB_PORT
-        target: 3306
+        target: 5432
     networks:
       - dev
     volumes:

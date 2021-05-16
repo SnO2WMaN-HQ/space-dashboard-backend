@@ -2,29 +2,28 @@ services:
   adminer:
     image: adminer:standalone@sha256:370c04eb26f585c408986d89d1d9c5e62f387d4afdd5a49aa13f7c5f53790262
     ports:
-      - published: 18080
+      - published: $ADMINER_PORT
         target: 8080
     networks:
-      - dashboard
+      - dev
     environment:
-      ADMINER_DESIGN: pepa-linha
+      ADMINER_DESIGN: $ADMINER_DESIGN
 
-  dashboard-db:
-    image: postgres:13
+  local-db:
+    image: mysql:8.0@sha256:5d1d733f32c28d47061e9d5c2b1fb49b4628c4432901632a70019ec950eda491
     environment:
-      POSTGRES_USER: $DASHBOARD_DB_USERNAME
-      POSTGRES_PASSWORD: $DASHBOARD_DB_PASSWORD
-      POSTGRES_DB: $DASHBOARD_DB_DATABASE
+      MYSQL_ROOT_PASSWORD: $DEV_DB_PASSWORD
+      MYSQL_DATABASE: $DEV_DB_DATABASE
     ports:
-      - published: $DASHBOARD_DB_PORT
-        target: 5432
+      - published: $DEV_DB_PORT
+        target: 3306
     networks:
-      - dashboard
+      - dev
     volumes:
-      - dashboard-db-data:/var/lib/postgresql/data
+      - dev-db-data:/var/lib/mysql
 
 volumes:
-  dashboard-db-data:
+  dev-db-data:
 
 networks:
-  dashboard:
+  dev:

@@ -1,0 +1,65 @@
+datasource db {
+  provider = "mysql"
+  url      = env("PRISMA_DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["selectRelationCount"]
+}
+
+model Space {
+  id String @id @default(uuid())
+
+  finished Boolean @default(false)
+
+  title       String
+  description String?
+  minutesUrl  String?
+
+  openDate DateTime  @db.Date
+  openTime DateTime? @db.Time
+
+  hostUser   User   @relation(fields: [hostUserId], references: [id])
+  hostUserId String
+
+  followingUsers Following[]
+}
+
+model Following {
+  id String @id @default(uuid())
+
+  updatedAt DateTime @updatedAt
+
+  comment String?
+
+  space   Space  @relation(fields: [spaceId], references: [id])
+  spaceId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  @@unique([spaceId, userId])
+}
+
+model Account {
+  id String @id @default(uuid())
+
+  user User?
+
+  twitterId String @unique
+}
+
+model User {
+  id String @id @default(uuid())
+
+  accountId String
+  account   Account @relation(fields: [accountId], references: [id])
+
+  uniqueName  String @unique
+  displayName String
+  picture     String
+
+  hostingSpaces   Space[]
+  followingSpaces Following[]
+}

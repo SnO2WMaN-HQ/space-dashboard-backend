@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   NotFoundException,
   UnauthorizedException,
   UseGuards,
@@ -82,7 +83,10 @@ export class UsersResolver {
 
   @Query(() => UserEntity, {name: 'user'})
   async findUser(@Args() args: FindUserArgs): Promise<UserEntity> {
-    const result = await this.usersService.findOne(args);
+    const where = this.usersService.resolveWhere(args);
+    if (!where) throw new BadRequestException();
+
+    const result = await this.usersService.findOne(where);
     if (!result) throw new NotFoundException();
     return result;
   }

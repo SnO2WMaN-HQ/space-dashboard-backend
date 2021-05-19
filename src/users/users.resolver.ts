@@ -2,7 +2,6 @@ import {NotFoundException, UseGuards} from '@nestjs/common';
 import {Args, Parent, Query, ResolveField, Resolver} from '@nestjs/graphql';
 import {CurrentUser, CurrentUserPayload} from '../auth/current-user.decorator';
 import {GqlAuthnGuard} from '../auth/gql-authn.guard';
-import {GqlAuthzGuard} from '../auth/gql-authz.guard';
 import {FindUserArgs} from './dto/find-user.dto';
 import {
   UserFollowingSpacesArgs,
@@ -66,7 +65,6 @@ export class UsersResolver {
   }
 
   @Query(() => UserEntity, {name: 'user'})
-  @UseGuards(GqlAuthzGuard)
   async findUser(@Args() args: FindUserArgs): Promise<UserEntity> {
     const result = await this.usersService.findOne(args);
     if (!result) throw new NotFoundException();
@@ -74,7 +72,6 @@ export class UsersResolver {
   }
 
   @Query(() => [UserEntity])
-  @UseGuards(GqlAuthzGuard)
   async allUsers(): Promise<UserEntity[]> {
     return this.usersService.all();
   }

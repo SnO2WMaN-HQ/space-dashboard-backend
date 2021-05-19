@@ -14,7 +14,6 @@ import {
 import {LocalDateResolver} from 'graphql-scalars';
 import {CurrentUser, CurrentUserPayload} from '../auth/current-user.decorator';
 import {GqlAuthnGuard} from '../auth/gql-authn.guard';
-import {GqlAuthzGuard} from '../auth/gql-authz.guard';
 import {HostingEntity} from '../hosting/hosting.entity';
 import {CreateSpaceArgs} from './dto/create-space.dto';
 import {FindSpaceArgs} from './dto/find-space.dto';
@@ -59,7 +58,6 @@ export class SpacesResolver {
   }
 
   @Query(() => SpaceEntity, {name: 'space'})
-  @UseGuards(GqlAuthzGuard)
   async findSpace(@Args() {id}: FindSpaceArgs): Promise<SpaceEntity> {
     const result = await this.spacesService.findById(id);
     if (!result) throw new NotFoundException();
@@ -67,7 +65,6 @@ export class SpacesResolver {
   }
 
   @Query(() => [SpaceEntity])
-  @UseGuards(GqlAuthzGuard)
   async allSpaces(): Promise<SpaceEntity[]> {
     return this.spacesService.all();
   }

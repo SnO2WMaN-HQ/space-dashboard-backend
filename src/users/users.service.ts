@@ -9,6 +9,15 @@ import {UserEntity} from './user.entity';
 export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
+  resolveWhere(args: {
+    id?: string;
+    uniqueName?: string;
+  }): {id: string} | {uniqueName: string} | undefined {
+    if (args.id) return {id: args.id};
+    else if (args.uniqueName) return {uniqueName: args.uniqueName};
+    else return undefined;
+  }
+
   async findOne(
     where: {id: string} | {uniqueName: string},
   ): Promise<UserEntity | null> {
@@ -31,6 +40,34 @@ export class UsersService {
         displayName: true,
         picture: true,
       },
+    });
+  }
+
+  async createUser(
+    accountId: string,
+    data: {uniqueName: string; displayName: string; picture: string},
+  ): Promise<UserEntity> {
+    return this.prismaService.user.create({
+      data: {
+        accountId,
+        ...data,
+      },
+      select: {
+        id: true,
+        uniqueName: true,
+        displayName: true,
+        picture: true,
+      },
+    });
+  }
+
+  async updateUser(
+    userId: string,
+    data: {uniqueName: string; displayName: string; picture: string},
+  ): Promise<UserEntity> {
+    return this.prismaService.user.update({
+      where: {id: userId},
+      data,
     });
   }
 

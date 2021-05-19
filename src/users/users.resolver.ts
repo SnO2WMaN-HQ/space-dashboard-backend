@@ -81,7 +81,6 @@ export class UsersResolver {
   async currentUser(
     @CurrentUser() currentUser: CurrentUserPayload,
   ): Promise<UserEntity | null> {
-    // eslint-disable-next-line unicorn/no-null
     if (!currentUser) return null;
 
     const result = await this.usersService.findOne({id: currentUser.id});

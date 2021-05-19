@@ -5,6 +5,7 @@ import {passportJwtSecret} from 'jwks-rsa';
 import {ExtractJwt, Strategy} from 'passport-jwt';
 import {AccountsService} from '../accounts/accounts.service';
 import {AuthnConfig} from './auth.config';
+import {CurrentSessionPayload} from './current-session.decorator';
 
 @Injectable()
 export class JwtAuthnStrategy extends PassportStrategy(Strategy, 'jwt-authn') {
@@ -27,7 +28,7 @@ export class JwtAuthnStrategy extends PassportStrategy(Strategy, 'jwt-authn') {
     });
   }
 
-  validate(payload: {sub?: string}): Promise<{id: string} | null> {
+  validate(payload: {sub?: string}): Promise<CurrentSessionPayload> {
     if (!payload?.sub) throw new BadRequestException();
 
     const [provider, id] = payload.sub.split('|');
@@ -36,9 +37,7 @@ export class JwtAuthnStrategy extends PassportStrategy(Strategy, 'jwt-authn') {
 
     switch (provider) {
       case 'twitter':
-        return this.accountsService
-          .ensureAccount({twitterId: id})
-          .then(({user}) => user);
+        return this.accountsService.ensureAccount({twitterId: id});
       default:
         throw new BadRequestException();
     }

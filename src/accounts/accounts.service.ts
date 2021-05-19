@@ -7,12 +7,17 @@ export class AccountsService {
 
   async ensureAccount(where: {
     twitterId: string;
-  }): Promise<{user: {id: string} | null}> {
-    return this.prismaService.account.upsert({
-      where,
-      create: where,
-      update: {},
-      select: {user: {select: {id: true}}},
-    });
+  }): Promise<{account: {id: string}; user: {id: string} | null}> {
+    return this.prismaService.account
+      .upsert({
+        where,
+        create: where,
+        update: {},
+        select: {
+          id: true,
+          user: {select: {id: true}},
+        },
+      })
+      .then(({id, user}) => ({account: {id}, user}));
   }
 }

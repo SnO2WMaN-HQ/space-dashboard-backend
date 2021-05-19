@@ -34,6 +34,34 @@ export class UsersService {
     });
   }
 
+  async createUser(
+    accountId: string,
+    data: {uniqueName: string; displayName: string; picture: string},
+  ): Promise<UserEntity> {
+    return this.prismaService.user.create({
+      data: {
+        accountId,
+        ...data,
+      },
+      select: {
+        id: true,
+        uniqueName: true,
+        displayName: true,
+        picture: true,
+      },
+    });
+  }
+
+  async updateUser(
+    userId: string,
+    data: {uniqueName: string; displayName: string; picture: string},
+  ): Promise<UserEntity> {
+    return this.prismaService.user.update({
+      where: {id: userId},
+      data,
+    });
+  }
+
   async getHostedSpaces(
     userId: string,
     params: {take: number} | {cursor: string; take: number},

@@ -12,7 +12,10 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import {LocalDateResolver} from 'graphql-scalars';
-import {CurrentUser, CurrentUserPayload} from '../auth/current-user.decorator';
+import {
+  CurrentSession,
+  CurrentSessionPayload,
+} from '../auth/current-session.decorator';
 import {GqlAuthnGuard} from '../auth/gql-authn.guard';
 import {HostingEntity} from '../hosting/hosting.entity';
 import {CreateSpaceArgs} from './dto/create-space.dto';
@@ -72,7 +75,7 @@ export class SpacesResolver {
   @Mutation(() => SpaceEntity)
   @UseGuards(GqlAuthnGuard)
   async createSpace(
-    @CurrentUser() currentUser: CurrentUserPayload,
+    @CurrentSession() {user: currentUser}: CurrentSessionPayload,
     @Args({type: () => CreateSpaceArgs}) {hostUserId, ...data}: CreateSpaceArgs,
   ): Promise<SpaceEntity> {
     if (!currentUser || currentUser.id !== hostUserId)
@@ -84,7 +87,7 @@ export class SpacesResolver {
   @Mutation(() => SpaceEntity)
   @UseGuards(GqlAuthnGuard)
   async updateSpace(
-    @CurrentUser() currentUser: CurrentUserPayload,
+    @CurrentSession() {user: currentUser}: CurrentSessionPayload,
     @Args({type: () => UpdateSpaceArgs})
     {id: spaceId, ...data}: UpdateSpaceArgs,
   ): Promise<SpaceEntity> {
@@ -100,7 +103,7 @@ export class SpacesResolver {
   @Mutation(() => SpaceEntity)
   @UseGuards(GqlAuthnGuard)
   async finishSpace(
-    @CurrentUser() currentUser: CurrentUserPayload,
+    @CurrentSession() {user: currentUser}: CurrentSessionPayload,
     @Args({type: () => FinishSpaceArgs}) {id: spaceId}: FinishSpaceArgs,
   ): Promise<SpaceEntity> {
     if (

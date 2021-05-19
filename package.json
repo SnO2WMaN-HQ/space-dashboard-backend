@@ -37,9 +37,9 @@
   },
   "devDependencies": {
     "@arkweid/lefthook": "0.7.2",
-    "@bo2kshelf/eslint-config": "1.1.1",
-    "@bo2kshelf/prettier-config": "1.0.0",
     "@nestjs/cli": "7.6.0",
+    "@shopify/eslint-plugin": "^40.2.3",
+    "@shopify/prettier-config": "^1.1.2",
     "@types/express": "^4.17.11",
     "@types/node": "14.14.41",
     "@types/passport-jwt": "^3.0.5",

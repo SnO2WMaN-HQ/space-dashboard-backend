@@ -1,5 +1,5 @@
 import {ArgsType, Field, ID} from '@nestjs/graphql';
-import {IsUrl, Max, MaxLength, Min, MinLength} from 'class-validator';
+import {IsUrl, MaxLength, MinLength} from 'class-validator';
 
 @ArgsType()
 export class CreateUserArgs {
@@ -9,8 +9,8 @@ export class CreateUserArgs {
   uniqueName!: string;
 
   @Field(() => String)
-  @Min(0)
-  @Max(50)
+  @MinLength(0)
+  @MaxLength(50)
   displayName!: string;
 
   @Field(() => String)

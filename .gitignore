@@ -8,6 +8,9 @@ dist/
 .env*
 !.env.example
 
+# cache
+.eslintcache
+
 # logfile
 *.log
 

@@ -1,4 +1,21 @@
 {
   "root": true,
-  "extends": ["@bo2kshelf/eslint-config/nest"]
+  "extends": ["plugin:@shopify/typescript", "plugin:@shopify/prettier"],
+  "rules": {
+    "import/order": [0]
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.module.ts"],
+      "rules": {
+        "@typescript-eslint/no-extraneous-class": [0]
+      }
+    },
+    {
+      "files": ["src/**/*.config.ts"],
+      "rules": {
+        "no-process-env": [0]
+      }
+    }
+  ]
 }

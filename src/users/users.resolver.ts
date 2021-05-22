@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import {
   Args,
+  ID,
   Mutation,
   Parent,
   Query,
@@ -76,7 +77,7 @@ export class UsersResolver {
   @ResolveField(() => Boolean)
   async isFollowingSpace(
     @Parent() {id}: UserEntity,
-    @Args('spaceId', {type: () => String}) spaceId: string,
+    @Args('spaceId', {type: () => ID}) spaceId: string,
   ): Promise<boolean> {
     return this.usersService.isSpaceFollowing(id, spaceId);
   }

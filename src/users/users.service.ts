@@ -159,4 +159,13 @@ export class UsersService {
       })
       .then((following) => Boolean(following));
   }
+
+  async isHostSpace(userId: string, spaceId: string): Promise<boolean> {
+    return this.prismaService.space
+      .findUnique({
+        where: {id: spaceId},
+        select: {hostUserId: true},
+      })
+      .then((space) => space?.hostUserId === userId);
+  }
 }

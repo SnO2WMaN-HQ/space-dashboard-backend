@@ -82,6 +82,14 @@ export class UsersResolver {
     return this.usersService.isSpaceFollowing(id, spaceId);
   }
 
+  @ResolveField(() => Boolean)
+  async isHostSpace(
+    @Parent() {id}: UserEntity,
+    @Args('spaceId', {type: () => ID}) spaceId: string,
+  ): Promise<boolean> {
+    return this.usersService.isHostSpace(id, spaceId);
+  }
+
   @Query(() => UserEntity, {name: 'user'})
   async findUser(@Args() args: FindUserArgs): Promise<UserEntity> {
     const where = this.usersService.resolveWhere(args);
